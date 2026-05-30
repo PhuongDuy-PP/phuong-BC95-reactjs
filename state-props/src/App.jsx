@@ -44,7 +44,9 @@ function App() {
   // TH1: nếu để [] thì callback chỉ chạy 1 lần sau lần render đầu tiên
   // TH2: nếu để [keyword] thì callback sẽ chạy sau lần render đầu tiên và mỗi khi keyword thay đổi
   
-  // CASE 1: call API
+  // CASE 1: call API lần đầu tiên khi vào component
+  // 1. gọi API để lấy data
+  // lần sau sẽ không gọi useEffect này nữa
   useEffect(() => {
     // bật loading để hiển thị. spinner khi đang chờ API trả về
     setIsLoading(true)
@@ -63,45 +65,25 @@ function App() {
       })
   }, [])
 
-  // CASE 2: filter data theo keyword
-  // useEffect(() => {
-  //   // logic filter data theo keyword
-  //   // nếu keyword rỗng => hiển thị tất cả products
-  //   // nếu keyword không rỗng => hiển thị products có name chứa keyword
-  // }, [keyword])
+  // CASE 2: call API theo keyword
   useEffect(() => {
-    // bật loading để hiển thị. dòng trạng thái khi đang chờ filter data
-    setIsLoading(true)
+    // format URL có chứa query param ?search=keyword
+    const formatURL = `${API_URL}?search=${keyword}`
     
-    // logic filter data theo keyword
-    // nếu keyword rỗng => hiển thị tất cả products
-    if (keyword === '') {
-      axios.get(API_URL)
-        .then(() => {
-          setIsLoading(true)
-          axios.get(API_URL)
-            .then((response) => {
-              setProducts(response.data)
-            })
-            .catch(() => {})
-            .finally(() => {
-              setIsLoading(false)
-            })
-        })
-      setProducts(products)
-    }
-    // nếu keyword không rỗng => truyền keyword vào API để call API
-    else {
-      const urlApiWithKeyword = `${API_URL}?name=${keyword}`
-      axios.get(urlApiWithKeyword)
-        .then((response) => {
-          setProducts(response.data)
-        })
-        .catch(() => {})
-        .finally(() => {
-          setIsLoading(false)
-        })
-    }
+    // bật loading để hiển thị. spinner khi đang chờ API trả về
+    setIsLoading(true)
+
+    // call API
+    axios.get(formatURL)
+      .then((response) => {
+        // lấy dữ liệu thành công => response.data
+        console.log("response: ", response)
+        setProducts(response.data)
+      })
+      .catch(() => {})
+      .finally(() => {
+        setIsLoading(false)
+      })
   }, [keyword])
 
   // define event component con gửi lên component cha
@@ -114,6 +96,7 @@ function App() {
   }
 
   const handleSearch = (keyword) => {
+    console.log("keyword: ", keyword)
     setKeyword(keyword)
   }
 
@@ -132,18 +115,6 @@ function App() {
     }
     setCart(newCart)
   }
-
-  // filter products theo keyword
-    const filteredProducts = keyword === ''
-    ? products
-    : products.filter((product) => {
-      // chuẩn hóa keyword và product.name về lowercase
-      const lowerKeyword = keyword.toLowerCase()
-      const lowerName = product.name.toLowerCase()
-
-      // kiểm tra xem lowerName có chứa lowerKeyword hay không
-      return lowerName.includes(lowerKeyword)
-    })
 
     // tạo biến totalItems tính tổng số lượng sản phẩm trong cart
     // vì cart là object => object => array => reduce

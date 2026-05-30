@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 const SearchBar = ({onSearch}) => {
   // state change keyword: lưu giá trị input
@@ -6,22 +6,23 @@ const SearchBar = ({onSearch}) => {
 
   // kiểm tra xem user có đang gõ hay không,
   // nếu dừng gõ khoảng 2s => filter data
-  let timeoutId = null
+
+  // dùng useEffect để theo dõi sự thay đổi của inputValue
+  // nếu thay đổi => setup timeout 2s
+  useEffect(() => {
+    // mỗi lần inputValue thay đổi => setup timeout mới
+    const timeoutId = setTimeout(() => {
+      onSearch(inputValue.trim())
+    }, 2000)
+
+    // nếu user gõ tiếp trước khi timeout kết thúc => clear timeout cũ đi
+    // return () => .... có nghĩa là hàm này sẽ gọi khi useEffect chạy
+    return () => clearTimeout(timeoutId)
+  }, [inputValue])
+  
   const handleChange = (event) => {
     const value = event.target.value
     setInputValue(value)
-    
-    // mỗi lần user gõ thì clear timeout cũ đi
-    if (timeoutId) {
-      clearTimeout(timeoutId)
-    }
-
-    // thiết lập timeout mới
-    timeoutId = setTimeout(() => {
-      // gửi event filter data lên component cha (App) để filter data
-      // onSearch là event (function) component con gửi lên component cha
-      onSearch(value.trim())
-    }, 2000)
   }
   return (
     <div className="mb-6">
