@@ -1,6 +1,74 @@
+import { useFormik } from 'formik'
 import React from 'react'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import * as Yup from 'yup'
+import { login } from '../store/slices/userSlice'
+
+// yup: thư viện hỗ trợ validate form
+// formik: thư viện hỗ trợ quản lý form, kết hợp với yup để validate form
+// formik:
+// lưu trữ giá trị của form trong state của formik
+// theo dõi sự thay đổi của form thông qua onChange, onBlur
+// onBlur: sự kiện khi người dùng rời khỏi input, thường dùng để validate form
+// hiển thị error message khi validate form không thành công
+// xử lý submit form thông qua onSubmit của formik
+
+// MOCK data user infor: admin và user thường
+const MOCK_USERS = [
+   {id: 1, email: 'admin@test.com', password: '123456zZ', role: 'admin', name: 'Admin'},
+   {id: 2, email: 'user@test.com', password: '123456zZ', role: 'user', name: 'User'}
+]
+
+// định nghĩa yup schema để validate form login
+const loginSchema = Yup.object({
+   email: Yup.string()
+            .email('Email không hợp lệ')
+            .required('Email là bắt buộc'),
+   password: Yup.string()
+            .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
+            .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Mật khẩu phải chứa ít nhất 1 ký tự viết hoa, 1 ký tự viết thường và 1 chữ số')
+            .required('Mật khẩu là bắt buộc')
+})
 
 const Login = () => {
+   const navigate = useNavigate()
+   const dispatch = useDispatch()
+
+   // define formik form: cần 3 tham số chính:
+   // initialValues: giá trị ban đầu của form
+   // validateionSchema: yup schema để validate form
+   // onSubmit: hàm xử lý khi submit form
+   const formik = useFormik({
+      initialValues: {
+         email: '',
+         password: ''
+      },
+      validationSchema: loginSchema,
+      onSubmit: (values) => {
+         // values: email, password người dùng nhập vào form
+
+         // check user từ MOCK_USERS
+         // tương lai: gọi API login để check user
+         const account = MOCK_USERS.find(user => user.email === values.email && user.password === values.password)
+
+         if (!account) {
+            alert('Email hoặc mật khẩu không đúng')
+            return
+         }
+
+         // nếu login thành công => lưu thông tin user vào localStorage
+         // vì localStorage chỉ lưu được string nên cần convert object thành string bằng JSON.stringify
+         // localStorage.setItem('user', JSON.stringify(account))
+         // recommend: push infor user => store của redux
+         dispatch(login(account))
+
+         // redirect về trang home sau khi login thành công
+         navigate('/')
+      }
+   })
+
+
   return (
       <main className="flex flex-col items-center justify-center py-4 px-4 md:px-8 lg:min-h-screen bg-black/70">
          <div className="grid items-center gap-12 max-w-lg lg:grid-cols-2 lg:max-w-6xl">
@@ -20,18 +88,51 @@ const Login = () => {
                   Sign in
                </h1>
 
-               <form className="space-y-6">
+               <form className="space-y-6" onSubmit={formik.handleSubmit}>
+                  {/* getFieldProps */}
+                  {/* return về 4 props: value, onChange, onBlur, name */}
+                  {/* ... => dàn trải ra thành kiểu:
+                     value={formik.values.email}
+                     onChange={formik.handleChange}
+                     onBlur={formik.handleBlur}
+                     name="email"
+                  */}
                   <div>
                      <label htmlFor="email"
                         className="mb-2 text-slate-900 font-medium text-sm inline-block dark:text-slate-50">Email</label>
-                     <input type="email" id="email" name="email" placeholder="john@readymadeui.com" required
+                     <input
+                        type="email"
+                        id="email"
+                        {...formik.getFieldProps('email')}
+                        placeholder="john@readymadeui.com"
                         className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 dark:text-slate-50 dark:bg-neutral-800 dark:outline-neutral-700" />
+                     {/* hiển thị error message nếu validate form không thành công */}
+                     {
+                        // touched: đã tương tác với input hay chưa (onBlur)
+                        // ý nghĩa: nếu user đã tương tác với input và có lỗi validate từ yup
+                        // => hiển thị error message
+                        formik.touched.email && formik.errors.email && (
+                           <p className="text-sm text-red-500 mt-1">{formik.errors.email}</p>
+                        )
+                     }
+                  
                   </div>
                   <div>
                      <label htmlFor="password"
                         className="mb-2 text-slate-900 font-medium text-sm inline-block dark:text-slate-50">Password</label>
-                     <input type="password" id="password" name="password" placeholder="••••••••" required
+                     <input
+                        type="password"
+                        id="password"
+                        {...formik.getFieldProps('password')}
+                        placeholder="••••••••"
                         className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 dark:text-slate-50 dark:bg-neutral-800 dark:outline-neutral-700" />
+                     {/* hiển thị error message nếu validate form không thành công */}
+                     {
+                        formik.touched.password && formik.errors.password && (
+                           <p className="text-sm text-red-500 mt-1">{formik.errors.password}</p>
+                        )
+                     }
+                  
                   </div>
 
                   <div className="flex items-start flex-wrap gap-2">

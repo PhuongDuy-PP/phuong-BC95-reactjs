@@ -9,6 +9,8 @@ import Profile from './pages/Profile'
 import NotFound from './pages/NotFound'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminLayout from './layouts/AdminLayout'
+import GuestRoute from './components/GuestRoute'
+import ProductDetail from './pages/ProductDetail'
 
 
 
@@ -32,18 +34,29 @@ function App() {
 
       <Route path='/' element={<MainLayout />}>
         <Route path='product' element={<Products />} />
+        {/* define param:*/}
+        {/* dấu : -> xác định param */}
+        {/* sau dấu : là tên của param, đặt tên nào cũng được */}
+        <Route path='product/:id' element={<ProductDetail />} />
         <Route path='about' element={<About />} />
         <Route path='profile' element={<Profile />} />
       </Route>
 
-      <Route path='/login' element={<Login />} />
+      {/* thêm route check nữa để chặn user không vào được page login và register */}
+      {/* nếu đã login trước đó rồi */}
+      {/* GuestRoute */}
+      <Route path='/login' element={
+        <GuestRoute>
+           <Login />
+        </GuestRoute>
+      } />
       <Route path='/register' element={<Register />} />
 
       {/* endpoint Admin */}
       <Route 
         path='/admin'
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredRole='admin'>
             <AdminLayout />
           </ProtectedRoute>
         }
