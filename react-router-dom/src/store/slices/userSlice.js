@@ -4,6 +4,10 @@
 // => cập nhật lại state của user
 // 3. selectors: là nơi định nghĩa các hàm để lấy dữ liệu từ state của user
 
+// Store: là nơi lưu trữ toàn bộ state của ứng dụng, VÀ CHỈ ĐƯỢC UPDATE STATE
+// KHÔNG NÊN xử lý logic phức tạp như gọi API, tính toán dữ liệu,
+// cập nhật trong localStorage,... trong reducer của slice
+
 import { createSlice } from "@reduxjs/toolkit"
 
 const initialState = {
@@ -20,13 +24,15 @@ const userSlice = createSlice({
         login: (state, action) => {
             state.currentUser = action.payload
             // lưu thông tin user vào localStorage
-            localStorage.setItem('user', JSON.stringify(action.payload))
+            // move qua userMiddleware.js
+            // localStorage.setItem('user', JSON.stringify(action.payload))
         },
         // action 2: logout
         logout: (state, action) => {
             state.currentUser = null
             // xóa thông tin user khỏi localStorage
-            localStorage.removeItem('user')
+            // move qua userMiddleware.js
+            // localStorage.removeItem('user')
         }
     }
 })
