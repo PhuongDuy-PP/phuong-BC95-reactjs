@@ -4,21 +4,43 @@ import HomeLayout from "./Layout/HomeLayout"
 import MovieListPage from "./pages/MovieListPage"
 import MovieDetailPage from "./pages/MovieDetailPage"
 import NotFoundPage from "./pages/NotFoundPage"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { Provider } from "react-redux"
+import { store } from "./store/store"
+
+// cài đặt query client ở ngoài App để tất cả các component, page
+// đều có thể sử dụng được
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // thời gian dữ liệu được xem là "mới" (fresh) sau khi fetch thành công
+      // trong khoảng thời gian này, nếu component nào gọi useQuery với cùng queryKey
+      // thì sẽ trả về dữ liệu cũ trong cache mà không gọi API nữa
+      staleTime: 5 * 60 * 1000, // 5 phút
+
+      retry: 1, // số lần thử lại khi request thất bại (mặc định là 3)
+    }
+  }
+})
 
 function App() {
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<HomeLayout />}>
-          <Route index element={<MovieListPage />} />
-          <Route path="movie" element={<MovieListPage />} />
-          <Route path="movie/:id" element={<MovieDetailPage />} />
-        </Route>
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </BrowserRouter>
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<HomeLayout />}>
+              <Route index element={<MovieListPage />} />
+              <Route path="movie" element={<MovieListPage />} />
+              <Route path="movie/:maPhim" element={<MovieDetailPage />} />
+            </Route>
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </Provider>
   )
 }
 

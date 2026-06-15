@@ -1,28 +1,30 @@
 import React from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { useMovieDetail } from '../hooks/useMovies'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 const MovieDetailPage = () => {
+    const { maPhim } = useParams()
+    const { data: movie, isLoading, isError, error } = useMovieDetail(maPhim)
     return (
         <div className="min-h-screen bg-gray-950 text-white">
             {/* Loading State */}
-            {/*
-      <div class="flex items-center justify-center py-20">
-          <div class="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    */}
+            {isLoading && (<LoadingSpinner />)}
             {/* Error State */}
-            {/*
-      <div class="min-h-screen bg-gray-950 flex items-center justify-center">
-          <div class="text-center">
-              <p class="text-red-400 text-xl mb-4">Không tìm thấy phim</p>
-              <a href="movie-list.html" class="text-yellow-400 hover:underline">← Quay lại danh sách</a>
-          </div>
-      </div>
-    */}
+            {isError && (
+                <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+                    <div className="text-center">
+                        <p className="text-red-400 text-xl mb-4">Không tìm thấy phim</p>
+                        <Link to="/movie" className="text-yellow-400 hover:underline">← Quay lại danh sách</Link>
+                    </div>
+                </div>
+            )}
+
             {/* Back Button */}
             <div className="max-w-7xl mx-auto px-4 pt-6">
-                <a href="movie-list.html" className="inline-flex items-center gap-2 text-gray-400 hover:text-yellow-400 transition-colors mb-6">
+                <Link to="/movie" className="inline-flex items-center gap-2 text-gray-400 hover:text-yellow-400 transition-colors mb-6">
                     ← Quay lại danh sách
-                </a>
+                </Link>
             </div>
             {/* Hero Section (poster + info) */}
             <div className="relative">
