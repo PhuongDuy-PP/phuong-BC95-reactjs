@@ -7,6 +7,12 @@ import NotFoundPage from "./pages/NotFoundPage"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Provider } from "react-redux"
 import { store } from "./store/store"
+import AdminLayout from "./Layout/AdminLayout"
+import UserPage from "./pages/admin/UserPage"
+import CinemaPage from "./pages/CinemaPage"
+import ProfilePage from "./pages/ProfilePage"
+import ProtectedRoute from "./components/ProtectedRoute"
+import ProtectedAdminRoute from "./components/ProtectedAdminRoute"
 
 // cài đặt query client ở ngoài App để tất cả các component, page
 // đều có thể sử dụng được
@@ -35,6 +41,21 @@ function App() {
               <Route index element={<MovieListPage />} />
               <Route path="movie" element={<MovieListPage />} />
               <Route path="movie/:maPhim" element={<MovieDetailPage />} />
+              <Route path="cinema" element={<CinemaPage />} />
+              <Route path="profile" element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              } />
+            </Route>
+
+            {/* admin routes */}
+            <Route path="/admin" element={
+              <ProtectedAdminRoute>
+                <AdminLayout />
+              </ProtectedAdminRoute>
+            }>
+              <Route path="users" element={<UserPage />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

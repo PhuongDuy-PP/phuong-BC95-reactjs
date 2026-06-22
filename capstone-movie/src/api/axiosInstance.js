@@ -18,6 +18,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use((config) => {
     // B1: Lấy user từ localStorage
     const user = localStorage.getItem("user")
+    console.log("user: ", user)
 
     // B2: Nếu user tồn tại, thêm vào access token trong user và gửi vào header Authorization
     if (user) {

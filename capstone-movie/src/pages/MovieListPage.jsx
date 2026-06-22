@@ -2,6 +2,7 @@ import React from 'react'
 import { useMovieList } from '../hooks/useMovies'
 import LoadingSpinner from '../components/LoadingSpinner'
 import MovieCard from '../components/MovieCard'
+import Banner from '../components/Banner'
 
 const MovieListPage = () => {
     const { data: movies, isLoading, isError, error } = useMovieList("GP01")
@@ -9,6 +10,8 @@ const MovieListPage = () => {
     return (
         <div className="min-h-screen bg-gray-950 text-white">
             {/* Hero Banner */}
+            <Banner />
+
             <div className="bg-gradient-to-b from-gray-900 to-gray-950 py-16 px-4 text-center">
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
                     Danh sách <span className="text-yellow-400">Phim</span>

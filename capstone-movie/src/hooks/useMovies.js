@@ -25,3 +25,4 @@ export const useMovieDetail = (maPhim) => {
         enabled: maPhim !== undefined && maPhim !== null && maPhim !== "" // chỉ gọi API khi maPhim có giá trị hợp lệ
     })
 }
+

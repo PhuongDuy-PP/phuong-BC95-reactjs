@@ -8,5 +8,9 @@ export const movieApi = {
     // Lấy chi tiết phim
     getMovieDetail: (maPhim) => {
         return axiosInstance.get(`/QuanLyPhim/LayThongTinPhim?maPhim=${maPhim}`)
+    },
+    // lấy danh sách banner
+    getBanners: () => {
+        return axiosInstance.get('/QuanLyPhim/LayDanhSachBanner')
     }
 }

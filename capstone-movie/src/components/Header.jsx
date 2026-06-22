@@ -20,7 +20,11 @@ const Header = () => {
                     {
                         isLoggedIn ? (
                             <div className='flex gap-3 items-center'>
-                                <span className="text-sm text-gray-300">Xin chào, <span className="text-yellow-400 font-medium">{user?.hoTen}</span></span>
+                                <Link
+                                    to="/profile"
+                                    className="text-sm text-gray-300"
+                                >Xin chào, <span className="text-yellow-400 font-medium">{user?.hoTen}</span>
+                                </Link>
                                 <button
                                     className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors text-white"
                                     onClick={handleLogout}
