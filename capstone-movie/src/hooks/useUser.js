@@ -14,12 +14,12 @@ export const useProfile = (isLoggedIn) => {
     })
 }
 
-export const useUsers = () => {
+export const useUsers = (soTrang = 1, soPhanTuTrenTrang = 10) => {
     return useQuery({
-        queryKey: ['users'],
+        queryKey: ['users', soTrang, soPhanTuTrenTrang],
         queryFn: async () => {
-            const response = await userApi.getUserList()
-            return response.data.content
+            const response = await userApi.getUserListPhanTrang('GP01', soTrang, soPhanTuTrenTrang)
+            return response.data.content // { currentPage, count, totalPages, totalCount, items }
         }
     })
 }

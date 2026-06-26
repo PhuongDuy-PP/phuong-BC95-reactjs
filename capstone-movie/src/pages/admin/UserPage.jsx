@@ -14,9 +14,27 @@ const addUserSchema = Yup.object().shape({
 })
 
 const UserPage = () => {
-  const { data: users = [], isLoading } = useUsers()
-  const addUser = useAddUser()
+  // BƯỚC 1: Lưu trang hiện tại vào state, mặc định là trang 1
+  // Mỗi khi currentPage thay đổi → React re-render → useUsers gọi lại API trang mới
+  const [currentPage, setCurrentPage] = useState(1)
 
+  // Số người dùng hiển thị trên mỗi trang (cố định là 10)
+  const PAGE_SIZE = 10
+
+  // BƯỚC 2: Gọi hook useUsers, truyền vào trang hiện tại và số phần tử mỗi trang
+  // Hook này sẽ gọi API: /LayDanhSachNguoiDungPhanTrang?MaNhom=GP01&soTrang=1&soPhanTuTrenTrang=10
+  // Khi currentPage thay đổi → queryKey thay đổi → TanStack Query tự động gọi lại API
+  const { data, isLoading } = useUsers(currentPage, PAGE_SIZE)
+
+  // BƯỚC 3: Lấy dữ liệu từ response API trả về
+  // data.items       = mảng người dùng của trang hiện tại (tối đa 10 người)
+  // data.totalPages  = tổng số trang (ví dụ: 120 người / 10 = 12 trang)
+  // data.totalCount  = tổng số người dùng trong hệ thống (ví dụ: 120)
+  const users = data?.items || []         // nếu chưa có data thì dùng mảng rỗng
+  const totalPages = data?.totalPages || 1 // nếu chưa có data thì mặc định 1 trang
+  const totalCount = data?.totalCount || 0 // nếu chưa có data thì mặc định 0
+
+  const addUser = useAddUser()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const formik = useFormik({
@@ -61,7 +79,7 @@ const UserPage = () => {
         <div>
           <h2 className="text-white text-2xl font-bold">Danh sách người dùng</h2>
           <p className="text-gray-400 text-sm mt-1">
-            Hiển thị <span className="text-yellow-400 font-medium">5</span> / 120 người dùng
+            Trang <span className="text-yellow-400 font-medium">{currentPage}</span> / {totalPages} — Tổng <span className="text-yellow-400 font-medium">{totalCount}</span> người dùng
           </p>
         </div>
         <div className="relative w-72">
@@ -134,6 +152,65 @@ const UserPage = () => {
           </table>
         </div>
       </div>
+      {/* Phân trang */}
+      <div className="flex items-center justify-center gap-2 mt-6">
+        {/* 
+    Previous button
+    - Khi click sẽ giảm currentPage đi 1.
+    - Nút sẽ bị disable nếu đang ở trang đầu tiên (currentPage === 1)
+      để tránh chuyển sang trang không tồn tại.
+  */}
+        <button
+          onClick={() => setCurrentPage(p => p - 1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm"
+        >
+          ← Trước
+        </button>
+
+        {/*
+    Generate page number buttons.
+    - Array.from({ length: totalPages }) tạo ra một mảng có số phần tử
+      bằng tổng số trang.
+    - (_, i) => i + 1 chuyển index (0,1,2,...) thành số trang (1,2,3,...).
+    - map() dùng để render một button cho mỗi trang.
+  */}
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+          <button
+            key={page}
+            onClick={() => setCurrentPage(page)}
+
+            /*
+              Highlight trang hiện tại.
+              - Nếu page === currentPage:
+                  + Đổi màu nền để người dùng biết đang ở trang nào.
+              - Ngược lại:
+                  + Hiển thị màu mặc định và hiệu ứng hover.
+            */
+            className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${page === currentPage
+                ? 'bg-yellow-400 text-gray-900'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+          >
+            {page}
+          </button>
+        ))}
+
+        {/*
+    Next button
+    - Khi click sẽ tăng currentPage lên 1.
+    - Disable khi đã ở trang cuối (currentPage === totalPages)
+      để tránh vượt quá số trang.
+  */}
+        <button
+          onClick={() => setCurrentPage(p => p + 1)}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm"
+        >
+          Sau →
+        </button>
+      </div>
+
       {/* modal */}
       {
         isModalOpen && (
@@ -142,7 +219,7 @@ const UserPage = () => {
               <div className="flex items-center justify-between px-6 py-5 border-b border-gray-800">
                 <h3 className="text-white text-lg font-bold">Thêm người dùng mới</h3>
                 <button
-                  onClick = {handleCloseModal}
+                  onClick={handleCloseModal}
                   className="text-gray-500 hover:text-white transition-colors text-xl leading-none">×</button>
               </div>
 
@@ -199,7 +276,7 @@ const UserPage = () => {
                   />
                   {formik.touched.email && formik.errors.email && (
                     <p className="text-red-500 text-xs mt-1">{formik.errors.email}</p>
-                  )}      
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

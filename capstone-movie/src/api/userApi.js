@@ -1,27 +1,13 @@
 import axiosInstance from "./axiosInstance"
 
 export const userApi = {
-    // lay danh sach nguoi dung
-    getUserList: (maNhom = 'GP01') => {
-        return axiosInstance.get(`/QuanLyNguoiDung/LayDanhSachNguoiDung?MaNhom=${maNhom}`)
+    getUserListPhanTrang: (maNhom = 'GP01', soTrang = 1, soPhanTuTrenTrang = 10) => {
+        return axiosInstance.get(`/QuanLyNguoiDung/LayDanhSachNguoiDungPhanTrang?MaNhom=${maNhom}&soTrang=${soTrang}&soPhanTuTrenTrang=${soPhanTuTrenTrang}`)
     },
-    // lay thong tin nguoi dung
     getProfile: () => {
         return axiosInstance.post('/QuanLyNguoiDung/ThongTinTaiKhoan')
     },
     addUser: (userData) => {
-//         {
-//   "taiKhoan": "string",
-//   "matKhau": "string",
-//   "email": "string",
-//   "soDt": "string",
-//   "maNhom": "string",
-//   "maLoaiNguoiDung": "string",
-//   "hoTen": "string"
-// }
         return axiosInstance.post('/QuanLyNguoiDung/ThemNguoiDung', userData)
     },
-    getUserList: (maNhom = 'GP01') => {
-        return axiosInstance.get(`/QuanLyNguoiDung/LayDanhSachNguoiDung?MaNhom=${maNhom}`)
-    }
 }
